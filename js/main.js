@@ -3,7 +3,6 @@ const GAME_HEIGHT = 460;
 
 function loadSprites() {
     game.load.spritesheet('bird', 'assets/grumpy_bird/sprite.png', 100, 102, 8); 
-    game.load.image('pipe', 'assets/pipe.png');
     game.load.spritesheet('obstacle', 'assets/obstacle/obstacle.png', 37, 50);
     game.load.image('background', 'assets/backgrounds.png',)
     game.load.audio('jump', 'assets/jump.wav');
@@ -38,10 +37,9 @@ var mainState = {
         game.scale.forceOrientation(true);
     },
     create: function() {
+        this.started = false;
         this.background = initBackground();
         this.bird = createBird(); 
-        setUpPhysics(this.bird);
-        setBirdPhysics(this.bird);
 
         this.jumpSound = game.add.audio('jump');
 
@@ -53,12 +51,11 @@ var mainState = {
         // Create an empty group
         this.pipes = game.add.group(); 
 
-        this.timer = game.time.events.loop(1500, this.addRowOfPipes, this); 
-
         this.score = 0;
         this.labelScore = game.add.text(20, 20, "0", { font: "30px Arial", fill: "#ffffff" });
     }, 
     update: function() {
+        if(!this.started) return;
         if(this.bird.alive) this.background.tilePosition.x -= 2;
         game.physics.arcade.overlap(this.bird, this.pipes, this.hitPipe, null, this);
         /*if (this.bird.y < 0 || this.bird.y > 490) this.restartGame();*/
@@ -69,12 +66,20 @@ var mainState = {
     },
 
     jump: function() {
+        if(!this.started) this.startGame();
         if(!this.bird.alive) return;
         // Add a vertical velocity to the bird
         this.bird.body.velocity.y = -350;
         this.jumpSound.play();
         // Rotate upwards
         game.add.tween(this.bird).to({angle: -20}, 100).start(); 
+    },
+
+    startGame: function() {
+        this.started = true;
+        setUpPhysics(this.bird);
+        setBirdPhysics(this.bird);
+        this.timer = game.time.events.loop(1500, this.addRowOfPipes, this); 
     },
 
     // Restart the game
