@@ -63,6 +63,8 @@ var mainState = {
         this.bird.events.onOutOfBounds.add(this.restartGame);
 
         if (this.bird.angle < 20) this.bird.angle += 1;
+
+        game.debug.body(this.bird);
     },
 
     jump: function() {
